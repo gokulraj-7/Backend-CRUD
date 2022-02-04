@@ -1,7 +1,8 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const url = 'mongodb://127.0.0.1:27017/studentDB'
-const Student = require('./models.js')
+const Student = require('./student.js')
+const Standard = require('./standard.js')
 
 const app = express()
 
@@ -13,10 +14,19 @@ mongoose.connection.once('open',function(){
 
 app.use(express.json())
 
-app.get('/getStudents/:id', async(req,res) => {
+/* Student */
+
+app.get('/getStudent/:classId', async(req,res) => {
     try {
-        const student = await Student.findById(req.params.id)
-        res.json(student)
+        const students = await Student.find()
+        const studentGroup = []
+        students.map(student => {
+            if(student.classId == req.params.classId)
+            {
+                studentGroup.push(student)
+            }
+        })  
+        res.json(studentGroup)
     } catch (err) {
         res.send('Error ' + err)
     }
@@ -36,8 +46,7 @@ app.post('/addStudents',async(req,res) => {
         name : req.body.name,
         rollno : req.body.rollno,
         mobile : req.body.mobile,
-        std : req.body.std,
-        sec : req.body.sec 
+        classId : req.body.classId
     })
 
     try {
@@ -48,15 +57,74 @@ app.post('/addStudents',async(req,res) => {
     }
 }) 
 
-app.put('/updateStudent/:id', async(req,res) => {
+app.put('/updateStudents/:id', async(req,res) => {
     try {
         const student = await Student.findById(req.params.id)
-        student.sub = req.body.sub
+        student.name = req.body.name
+        student.rollno = req.body.rollno
+        student.mobile = req.body.mobile,
+        student.classId = req.body.classId 
         const data = await student.save()
         res.json(data)
     } catch (err) {
         res.send('Error')
     }
 })
+
+app.delete('/deleteStudents/:id', async(req,res) => {
+    try {
+        const student = await Student.findById(req.params.id) 
+        const data = await student.remove()
+        res.json(data)
+    } catch (err) {
+        res.send('Error')
+    }
+})
+
+/*Class*/
+app.get('/getStandard', async(req,res) => {
+    try {
+        const standard = await Standard.find()
+        res.json(standard)
+    } catch (err) {
+        res.send('Error ' + err)
+    }
+})
+
+app.post('/addStandard',async(req,res) => {
+    const standard = new Standard ({
+        std : req.body.std,
+        division : req.body.division
+    })
+    try {
+        const data = await standard.save()
+        res.json(data)
+    } catch (err) {
+        res.send('Error')
+    }
+}) 
+
+app.put('/updateStandard/:id', async(req,res) => {
+    try {
+        const standard = await Standard.findById(req.params.id)
+        standard.std = req.body.std
+        standard.division = req.body.division 
+        const data = await standard.save()
+        res.json(data)
+    } catch (err) {
+        res.send('Error')
+    }
+})
+
+app.delete('/deleteStandard/:id', async(req,res) => {
+    try {
+        const standard = await Standard.findById(req.params.id) 
+        const data = await standard.remove()
+        res.json(data)
+    } catch (err) {
+        res.send('Error')
+    }
+})
+
 
 app.listen(4000, () => {console.log('Server Started')})

@@ -4,8 +4,7 @@ const studentSchema = new mongoose.Schema({
     name: { type: String, required: true},
     rollno: { type: Number, required: true},
     mobile: { type: Number, required: true},
-    std: { type: String, required: true},
-    sec: { type: String, required: true}
+    classId: { type: String, required: true}
 });
 
 
